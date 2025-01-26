@@ -1,0 +1,7 @@
+{
+"character_dir" : "/Users/krishnayadav/Documents/eliza-python/data/character.json",
+"env_dir" : "/Users/krishnayadav/Documents/eliza-python/data/env.json",
+"session_address_create" : "http://localhost:5000/create_session",
+"session_address_close" : "http://localhost:5000/close_session",
+"eliza_address" : "http://localhost:3000/0608c405-4662-0d90-ae13-14f7e450e3ea/message"
+}

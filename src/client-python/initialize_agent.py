@@ -1,0 +1,160 @@
+import json
+import os
+from utils import *
+import requests
+
+config = load_config()
+
+
+class InitializeAgent:
+    def __init__(self, agents, API_KEY):
+        """
+        Initialize the class with a list of agents.
+
+        :param agents: A list of agent objects or dictionaries.
+        :param API_KEY: The API key for authentication.
+        """
+        self.agents = agents
+        self.API_KEY = API_KEY  # Explicitly assign API_KEY
+        self.session_id = None  # Initialize session_id as None
+
+    def display_agents(self):
+        """Display details of all agents."""
+        for agent in self.agents:
+            if isinstance(agent, dict):
+                print(f"Agent: {agent.get('name', 'Unknown')}, Attributes: {agent}")
+            else:
+                print(f"Agent: {agent.name}, Attributes: {agent.__dict__}")
+
+    def get_character_info(self):
+        character_json = {}
+
+        plugin_list = []
+        model_list = []
+        client_list = []
+        bio_list = []
+
+        for agent in self.agents:
+            try:
+                plugin_list.append('@elizaos/' + agent.agent_name)
+                model_list.append(str(agent.model.model))
+                client_list.append(str(agent.client))
+                bio_list.append(str(agent.bio))
+
+            except Exception as e:
+                continue
+
+        if (
+            len(plugin_list) >= 1 and
+            len(model_list) >= 1
+        ):
+
+            character_json['plugins'] = plugin_list
+            character_json['modelProvider'] = list(set(model_list))
+            character_json['clients'] = list(set(client_list))
+            character_json['bio'] = bio_list
+
+        else:
+            raise ValueError("Not sufficient plugins or models")
+
+        return character_json
+
+    def generate_character_file(self):
+        character_file = load_json_file(config['character_dir'])
+        character_json = self.get_character_info()
+
+        for key, value in character_json.items():
+            if key in character_file:
+                character_file[key] = value
+        
+        character_file["modelProvider"] = character_file["modelProvider"][0]
+
+        return character_file
+
+    def generate_env_file(self):
+        env_file = load_json_file(config['env_dir'])
+
+        for key in env_file.keys():
+            for agent in self.agents:
+                if hasattr(agent.model, key):
+                    env_file[key] = getattr(agent.model, key)
+                    
+                elif hasattr(agent, key):
+                    env_file[key] = getattr(agent, key)
+
+        return env_file
+
+    def start(self):
+        """
+        Start a new session by hitting the create_session API endpoint.
+        Stores the session_id returned by the API.
+        """
+        character_file = self.generate_character_file()
+        env_file = self.generate_env_file()
+
+        session_address = config['session_address_create']
+        payload = {
+            "character_file": character_file,
+            "env_file": env_file,
+            "api_key": self.API_KEY
+        }
+
+        headers = {"Content-Type": "application/json"}
+
+        response = requests.post(session_address, data=json.dumps(payload), headers=headers)
+
+        if response.status_code == 201:
+            print("Session created successfully!")
+            response_data = response.json()
+            self.session_id = response_data.get("session_id")  # Store the session_id
+            print(response_data)
+        elif response.status_code == 409:
+            print("Error: Previous session is not closed.")
+            print(response.json())
+        else:
+            print("An error occurred.")
+            print(response.json())
+
+    def close(self):
+        """
+        Close the session using the stored session_id.
+        """
+        if not self.session_id:
+            character_file = self.generate_character_file()
+            env_file = self.generate_env_file()
+
+            session_address = config['session_address_create']
+            payload = {
+                "character_file": character_file,
+                "env_file": env_file,
+                "api_key": self.API_KEY
+            }
+
+            headers = {"Content-Type": "application/json"}
+            
+            session_id_response = requests.post(session_address, data=json.dumps(payload), headers=headers)
+            session_id_response_data = session_id_response.json()
+            
+            if session_id_response.status_code == 409:
+                self.session_id = session_id_response_data.get("session_id")
+                print("session {self.session} closed successfully")
+            
+            else:
+                return {"error": "No active session to close."}
+
+        url = config['session_address_close']
+        headers = {
+            "Content-Type": "application/json"
+        }
+        data = {
+            "api_key": self.API_KEY,
+            "session_id": self.session_id  # Include the session_id in the payload
+        }
+
+        try:
+            response = requests.post(url, json=data, headers=headers)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            self.session_id = None  # Reset the session_id after closing
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            return {"error": str(e)}
