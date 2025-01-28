@@ -146,6 +146,19 @@ Server
 
 
 
+###################
+Eliza OS-->
+server start
+
+automated -->
+BTC---> 90000 -> trade_binance()
+
+
+
+.env --> start() o1 -> character file -> twitter plugin .env
+
+o2 start() - c2 -> .env2 -> twitter plugin
+
 
 
 

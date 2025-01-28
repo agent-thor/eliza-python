@@ -9,6 +9,15 @@ class Agent:
         for key, value in kwargs.items():
             setattr(self, key, value)
     
+    def get_parsed_response(self, response):
+        text_output_list = []
+        
+        for list1 in response:
+            text_output_list.append(list1['text'])
+        
+        return ''.join(text_output_list)
+
+    
     def send_query(self, query):
         """
         Send a query to the Eliza API and return the response.
@@ -25,12 +34,13 @@ class Agent:
             "user": "user"
         }
         headers = {"Content-Type": "application/json"}
-    
+                
         try:
             response = requests.post(url, json=payload, headers=headers)
             response.raise_for_status()  # Raise an exception for HTTP errors
-            response = response.json()[1]['text']
-            return response # Return the JSON response directly
+            output = self.get_parsed_response(response.json())
+                        
+            return output # Return the JSON response directly
         except requests.exceptions.RequestException as e:
             # Handle request-related errors (e.g., network issues, invalid responses)
             return {"error": "Failed to send query.", "details": str(e)}

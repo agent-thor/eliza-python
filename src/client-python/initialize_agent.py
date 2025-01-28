@@ -2,6 +2,7 @@ import json
 import os
 from utils import *
 import requests
+from character import GenerateCharacter
 
 config = load_config()
 
@@ -26,42 +27,10 @@ class InitializeAgent:
             else:
                 print(f"Agent: {agent.name}, Attributes: {agent.__dict__}")
 
-    def get_character_info(self):
-        character_json = {}
-
-        plugin_list = []
-        model_list = []
-        client_list = []
-        bio_list = []
-
-        for agent in self.agents:
-            try:
-                plugin_list.append('@elizaos/' + agent.agent_name)
-                model_list.append(str(agent.model.model))
-                client_list.append(str(agent.client))
-                bio_list.append(str(agent.bio))
-
-            except Exception as e:
-                continue
-
-        if (
-            len(plugin_list) >= 1 and
-            len(model_list) >= 1
-        ):
-
-            character_json['plugins'] = plugin_list
-            character_json['modelProvider'] = list(set(model_list))
-            character_json['clients'] = list(set(client_list))
-            character_json['bio'] = bio_list
-
-        else:
-            raise ValueError("Not sufficient plugins or models")
-
-        return character_json
-
     def generate_character_file(self):
         character_file = load_json_file(config['character_dir'])
-        character_json = self.get_character_info()
+        character = GenerateCharacter(self.agents)
+        character_json = character.get_character_info()
 
         for key, value in character_json.items():
             if key in character_file:
@@ -135,12 +104,11 @@ class InitializeAgent:
             session_id_response = requests.post(session_address, data=json.dumps(payload), headers=headers)
             session_id_response_data = session_id_response.json()
             
-            if session_id_response.status_code == 409:
-                self.session_id = session_id_response_data.get("session_id")
-                print("session {self.session} closed successfully")
+            if session_id_response.status_code == 500:
+                return {"error": "No active session to close."}
             
             else:
-                return {"error": "No active session to close."}
+                self.session_id = session_id_response_data.get("session_id")
 
         url = config['session_address_close']
         headers = {
