@@ -1,27 +1,32 @@
 #!/bin/bash
+
 SERVER="ubuntu@147.189.202.22"
 KEY="RatAnseela_JohnQ1"
 PASSWORD="RatAnseela_JohnQ1"
 REMOTE_DIR="/home/ubuntu/eliza-python-deploy"
+IMAGE_NAME=$(basename "$PWD")  # Get the current directory name (used as image name)
 
-# Accept the program name as a command-line argument
-PROGRAM=$1
-if [ -z "$PROGRAM" ]; then
-  echo "Error: Please provide the Python program name (e.g., ./stop.sh program.py)"
-  exit 1
+# Ensure an action is provided
+if [ -z "$1" ]; then
+    echo "Error: No action specified. Use '--docker' to stop the container or provide a Python file to stop the script."
+    exit 1
 fi
-PID_FILE="${PROGRAM}.pid"
 
+if [ "$1" == "--docker" ]; then
+    ssh -i $KEY $SERVER << EOF
+        docker stop $IMAGE_NAME || true
+        docker rm $IMAGE_NAME || true
+        echo "Docker container '$IMAGE_NAME' stopped and removed."
+EOF
 
+elif [[ "$1" == *.py ]]; then
+    FILE_NAME="$1"
+    ssh -i $KEY $SERVER << EOF
+        pkill -f "python3 $FILE_NAME"
+        echo "Python script '$FILE_NAME' stopped."
+EOF
 
-
-# SSH into the server, navigate to the directory, and kill the process using the PID
-sshpass -p $PASSWORD ssh -i $KEY $SERVER "
-cd $REMOTE_DIR && 
-if [ -f $PID_FILE ]; then 
-  kill \$(cat $PID_FILE) && rm $PID_FILE; 
-  echo 'Process stopped successfully.'; 
-else 
-  echo 'PID file not found. Process may not be running.'; 
+else
+    echo "Error: Invalid stop option. Use '--docker' or provide a Python script filename."
+    exit 1
 fi
-"
