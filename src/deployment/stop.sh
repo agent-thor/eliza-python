@@ -1,8 +1,8 @@
 #!/bin/bash
 
 SERVER="ubuntu@147.189.202.22"
-KEY="RatAnseela_JohnQ1"
-PASSWORD="RatAnseela_JohnQ1"
+KEY=""
+PASSWORD=""
 REMOTE_DIR="/home/ubuntu/eliza-python-deploy"
 IMAGE_NAME=$(basename "$PWD")  # Get the current directory name (used as image name)
 
