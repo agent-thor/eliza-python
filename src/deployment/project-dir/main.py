@@ -1,2 +1,0 @@
-
-print("Program is running")
