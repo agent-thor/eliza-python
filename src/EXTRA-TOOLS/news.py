@@ -48,3 +48,4 @@ def real_time_price(symbol):
 # REAL TIME PRICE
 "https://api.twelvedata.com/price?symbol=TRP&country=Canada&apikey=9973cacdafa04ea48dcd1208626138e9"
 
+

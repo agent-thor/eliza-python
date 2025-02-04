@@ -9,6 +9,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import os
 import inspect
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 load_dotenv()
 
 client = chromadb.PersistentClient("/home/aryan/MY_PROJECTS/POLK/eliza-python/src/EXTRA-TOOLS")
@@ -16,12 +17,16 @@ collection_name = "polka_tools"
 collection = client.get_or_create_collection(name=collection_name)
 
 genai.configure(api_key=os.getenv("API_KEY"))
+llm = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
 with open('/home/aryan/MY_PROJECTS/POLK/eliza-python/src/EXTRA-TOOLS/composio.json', 'r') as file:
     data = json.load(file)
 
 
 def search(query:str):
+
+# uncomment below snippet if made changes to composio.json
+
     # for enum,desc in data.items():
             
     #         result = genai.embed_content(
@@ -39,7 +44,7 @@ def search(query:str):
     #             ids=[enum]
     #         )
 
-        # Step 2: Combine user query with their needs
+    # Step 2: Combine user query with their needs
     user_query = query
     # Generate embedding for the query
     query_result = genai.embed_content(
@@ -72,14 +77,47 @@ def search(query:str):
         signature = inspect.signature(globals()[func_name])
         params = signature.parameters
         args = {}
-        for name, param in params.items():
-            if param.default is inspect.Parameter.empty:
-                args[name] = input(f"Enter value for '{name}': ")  # Required argument
-            else:
-                value = input(f"Enter value for '{name}' (Press Enter to use default {param.default}): ")
-                args[name] = value if value else param.default  # Use default if no input
+        print()
+        inputs=[name for name, param in params.items()]
+        response = llm.generate_content([ f"for the given query, find out all the inputs which are available in the query and return a json response whose keys are the inputs and values are the user inputs from the query. No preambles and postambles, keep all strings in double quotes.\n Inputs: {inputs}\n Query: {query}"],
+                                        safety_settings={
+        HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+        HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
 
-        print(globals()[func_name](**args))
+        }
+        )
+        
+        # print(response.text)
+         # Get the response data from Gemini
+        gemini_response = response.text
+        if gemini_response[0]=="`":
+            gemini_response=gemini_response[7:-4]
+        print(gemini_response)
+        my_dict = json.loads(gemini_response)
+
+
+
+        # for name, param in params.items():
+            
+        #     if param.default is inspect.Parameter.empty:
+        #         args[name] = input(f"Enter value for '{name}': ")  # Required argument
+        #     else:
+        #         value = input(f"Enter value for '{name}' (Press Enter to use default {param.default}): ")
+        #         args[name] = value if value else param.default  # Use default if no input
+        try:
+            print(globals()[func_name](**my_dict))
+        except:
+            for name, param in params.items():
+            
+                if param.default is inspect.Parameter.empty:
+                    args[name] = input(f"Enter value for '{name}': ")  # Required argument
+                else:
+                    value = input(f"Enter value for '{name}' (Press Enter to use default {param.default}): ")
+                    args[name] = value if value else param.default  # Use default if no input
+            print(globals()[func_name](**args))
+
     except:
         print("Function not found")
 
@@ -88,7 +126,7 @@ def search(query:str):
 
 
 
-search("i want latest price of bitcoin ")
+search("i want latest price oetherium ")
 
 
 # i want to get latest crypto news
