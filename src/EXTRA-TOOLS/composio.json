@@ -1,0 +1,37 @@
+{
+    
+        "OPEN_SEA_CREATE_LISTING": "List A Single Nft (Erc721 Or Erc1155) For Sale On The Open Sea Marketplace.",
+        "OPEN_SEA_GET_COLLECTION": "Get A Single Collection Including Details Such As Fees, Traits, And Links.",
+        "OPEN_SEA_GET_NFT": "Get Metadata, Traits, Ownership Information, And Rarity For A Single Nft.",
+        "OPEN_SEA_FULFILL_LISTING": "Retrieve All The Information, Including Signatures, Needed To Fulfill A Listing Directly Onchain.",
+        "OPEN_SEA_GET_COLLECTION_STATS": "Get Stats For A Single Collection On Open Sea.",
+        "OPEN_SEA_CREATE_ITEM_OFFER": "Create An Offer To Purchase A Single Nft (Erc721 Or Erc1155).",
+        "OPEN_SEA_GET_ACCOUNT": "Get An Open Sea Account Profile Including Details Such As Bio, Social Media Usernames, And Profile Image.",
+        "OPEN_SEA_GET_ORDER": "Get A Single Order, Offer Or Listing, By Its Order Hash. Protocol And Chain Are Required To Prevent Hash Collisions.",
+        "BINANCE_GET_TRADE_HISTORY": "Get Account's Trade History For A Specific Symbol.",
+        "BINANCE_GET_AVG_PRICE": "Get Current Average Price For A Symbol.",
+        "BINANCE_ADD_LIQUIDITY": "Add Liquidity To A Binance Liquid Swap Pool.",
+        "BINANCE_GET_ACCOUNT_INFO": "Get Current Account Information Including Balances, Commissions, And Permissions.",
+        "BINANCE_TEST_ORDER": "Test A New Order Without Actually Placing It. Validates Parameters And Checks For Errors.",
+        "BINANCE_LIST_SWAP_POOLS": "List All Available Swap Pools From Binance Liquid Swap.",
+        "COINBASE_CREATE_WALLET": "Create A New Wallet In Coinbase, Optionally Using Server Signing (Custodial / 2 Of 2 Mpc).",
+        "COINBASE_COINBASE_FAUCET": "Requests Testnet Funds (E.G. Eth, Usdc) For A Given Wallet Using The Cdp Sdk. Note: This Only Works On Test Networks That Support A Faucet (E.G. Base Sepolia).",
+        "COINBASE_SEND_TOKENS": "Sends Tokens From One Cdp Wallet To Another Or To An External Address Using The Cdp Sdk.\n This Action Supports Both Internal Transfers Between Cdp Wallets And External Transfers To Blockchain Addresses. It Handles Gasless Transfers For Supported Assets And Optional Batching For Optimized Processing.",
+        "COINBASE_GET_WALLET_INFO": "Retrieve Detailed Information About A Single Wallet From Coinbase Via The Cdp Sdk.",
+        "COINBASE_CHECK_TRANSFER": "Action To Retrieve A Transfer By Wallet Id, Address Id, And Transfer Id Using The Cdp Sdk Get Transfer(...) Endpoint.",
+        "COINBASE_LIST_WALLETS": "Retrieve All Wallets From Coinbase Via The Cdp Sdk.",
+        "more":"coinmarketcal, venly",
+        "news_sentiment":"Retrieve coin news and it's sentiments",
+        "currency_exchange_rates":"Get the latest exchange rates for, from one currency to another",
+        "historical_time_series":"Get historical time series data for a given symbol",
+        "intraday_time_series":"Get intraday time series data for a given symbol",
+        "insider_transactions":"This API returns the latest and historical insider transactions made be key stakeholders (e.g., founders, executives, board members, etc.) of a specific company.",
+        "monthly_yearly":"Get monthly and yearly reports in cryptocurrency",
+        "exchange":"Get crypto exchange details. including establishments, working of blockchain, and more",
+        "analysis":"research reports, covering a broad range of topics in the digital asset industry such as blockchain, economics, and finance",
+        "real_time_price":"Get real-time or latest price for a given symbol/coin",
+        "get_news":"Get the latest crypto news"
+
+
+
+}
