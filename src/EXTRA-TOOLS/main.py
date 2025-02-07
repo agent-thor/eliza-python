@@ -14,14 +14,18 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold
 load_dotenv()
 
 class PolkaToolSearch:
-    def __init__(self, db_path, collection_name, api_key, model_name="gemini-1.5-flash",natural_language_response=True):
-        self.client = chromadb.PersistentClient(db_path)
-        self.collection = self.client.get_or_create_collection(name=collection_name)
-        
-        genai.configure(api_key=api_key)
+    def __init__(self, api_keys, model_name="gemini-2.0-flash",natural_language_response=False):
+        self.client = chromadb.PersistentClient("/home/aryan/MY_PROJECTS/POLK/eliza-python/src/EXTRA-TOOLS")
+        self.collection = self.client.get_or_create_collection(name="polka_tools")
+        try:
+            genai.configure(api_key=api_keys.get("GEMINI"))
+        except:
+            print("NO key found for gemini")
+            return "NO key found for gemini"
+        self.api_keys=api_keys
         self.llm = genai.GenerativeModel(model_name=model_name)
         self.natural_language_response=natural_language_response
-        with open(os.path.join(db_path, "composio.json"), 'r') as file:
+        with open(os.path.join("/home/aryan/MY_PROJECTS/POLK/eliza-python/src/EXTRA-TOOLS", "composio.json"), 'r') as file:
             self.data = json.load(file)
 
     def generate_embedding(self, content):
@@ -47,10 +51,12 @@ class PolkaToolSearch:
 
         try:
             signature = inspect.signature(globals()[func_name])
-            inputs = [name for name in signature.parameters]
+            inputs = inputs = {name: param.default if param.default is not inspect.Parameter.empty else None
+          for name, param in signature.parameters.items()}
 
+            print("inputs:" ,inputs)
             prompt = (
-                f"for the given query, find out all the inputs which are available in the query and return a json response whose keys are the inputs and values are the user inputs from the query. the values for symbols are capitalized short forms . example :- BTC for bitcoin. keep keys as it is. No preambles and postambles, keep all strings in double quotes.\n Inputs: {inputs}\n Query: {query}"
+                f"for the given query, find out all the inputs which are available in the query, keep default inputs only of not available in query. Return a json response whose keys are the inputs and values are the user inputs from the query. the values for symbols are capitalized short forms . example :- BTC for bitcoin. keep keys as it is.  No preambles and postambles, keep all strings in double quotes.\n Inputs with their default values: {inputs}\n Query: {query}"
             )
             
             response = self.llm.generate_content([prompt], safety_settings={
@@ -61,15 +67,22 @@ class PolkaToolSearch:
             })
 
             gemini_response = response.text[7:-4]  # Cleanup response
-            print(gemini_response)
+            # print(gemini_response)
             extracted_inputs = json.loads(gemini_response)
+            
+            print(self.api_keys)
+            for req in inputs:
+                if self.api_keys.get(req) is not None:
+                    extracted_inputs[req]=self.api_keys.get(req)
 
+            print(extracted_inputs)
             # Call function with extracted inputs
-            out=print(globals()[func_name](**extracted_inputs))
+            out=globals()[func_name](**extracted_inputs)
+            print(out)
             if not self.natural_language_response:
                 return out
             else:
-                return self.llm.generate_content([f"give output in natural language based on the given query and some data\nQuery:{query}\n Data:{out}"], safety_settings={
+                return self.llm.generate_content([f"give output in natural language based on the given query and some data\nQuery:{query}\n Data:{out}\nIf data is not sufficient to answer the query, simply output insufficient data"], safety_settings={
                 HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
                 HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
                 HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
@@ -87,18 +100,44 @@ class PolkaToolSearch:
 
 # Usage
 if __name__ == "__main__":
+    api_keys={
+        "GEMINI":os.getenv("GEMINI"),
+        # "twelve":os.getenv("TWELVE_API"),
+        # "alpha":os.getenv("ALPHA_VANTAGE")
+    }
     search_tool = PolkaToolSearch(
-        db_path="/home/aryan/MY_PROJECTS/POLK/eliza-python/src/EXTRA-TOOLS",
-        collection_name="polka_tools",
-        api_key=os.getenv("API_KEY")
+        api_keys=api_keys
     )
 
-    print(search_tool.search(" i want to get insider information about transactions of AAPL"))
+    print(search_tool.search(" i want to retreve latest price of BTC"))
+
+
+
+
+    # client = chromadb.PersistentClient("/home/aryan/MY_PROJECTS/POLK/eliza-python/src/EXTRA-TOOLS")
+    # collection = client.get_or_create_collection(name="polka_tools")
+    # with open(os.path.join("/home/aryan/MY_PROJECTS/POLK/eliza-python/src/EXTRA-TOOLS", "composio.json"), 'r') as file:
+    #     data = json.load(file)
+    # genai.configure(api_key=os.getenv("API_KEY"))
+    # for key, value in data.items():
+    #     embedding = genai.embed_content(model="models/text-embedding-004", content=value)
+    #     collection.add(
+    #         documents=[value],  
+    #         embeddings=[embedding["embedding"]],
+    #         ids=[key]
+    #     )
+        
+
+        
+
+
 
 
 
 #TO DO :-
+# chromadb location ?
 # new tools add , semantic collection
+# delete faaltu functions from composio.json, create collection once again
 # input possible? possible symbols?  (also not AUG, but need to convert to 08)
 # how to give response to llm to get good natural language output ?
 # clean function, remove comments

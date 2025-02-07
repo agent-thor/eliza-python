@@ -1,21 +1,25 @@
 import requests
 from bs4 import BeautifulSoup
-
-
+import httpx
+import time
 # INFORMATION ABOUT EXCHANGE
 
 def exchange(project_name):
     main_url=f"https://www.binance.com/en-IN/research/projects/{project_name}"
     try:
-
+        headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+}   
         # Send a GET request to the webpage
-        response = requests.get(main_url)
+        response = httpx.get(main_url, headers=headers,follow_redirects=True)
 
         # Check if the request was successful
-        
+        print(response.status_code)
             
-        if response.status_code == 200:
+        if response.status_code == 202:
             # Parse the HTML content
+            time.sleep(10)
+            print(response.content)
             response = requests.get(main_url)
 
             # Parse the HTML content with BeautifulSoup

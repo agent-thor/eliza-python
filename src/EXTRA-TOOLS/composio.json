@@ -9,7 +9,6 @@
         "OPEN_SEA_GET_ACCOUNT": "Get An Open Sea Account Profile Including Details Such As Bio, Social Media Usernames, And Profile Image.",
         "OPEN_SEA_GET_ORDER": "Get A Single Order, Offer Or Listing, By Its Order Hash. Protocol And Chain Are Required To Prevent Hash Collisions.",
         "BINANCE_GET_TRADE_HISTORY": "Get Account's Trade History For A Specific Symbol.",
-        "BINANCE_GET_AVG_PRICE": "Get Current Average Price For A Symbol.",
         "BINANCE_ADD_LIQUIDITY": "Add Liquidity To A Binance Liquid Swap Pool.",
         "BINANCE_GET_ACCOUNT_INFO": "Get Current Account Information Including Balances, Commissions, And Permissions.",
         "BINANCE_TEST_ORDER": "Test A New Order Without Actually Placing It. Validates Parameters And Checks For Errors.",

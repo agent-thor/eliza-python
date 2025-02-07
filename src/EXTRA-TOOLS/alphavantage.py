@@ -1,12 +1,13 @@
 # api key = 
 import requests
 import json
-
-def news_sentiment(tickers="BTC"):
-    url = 'https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=COIN,CRYPTO:BTC,FOREX:USD&topics=blockchain&time_from=20250101T0000&apikey=QBTFDLTF1YAH05GW'
+import time
+def news_sentiment(alpha,tickers="COIN,CRYPTO:BTC,FOREX:USD",topics="blockchain",day_from="20250101"):
+    print("tickers, alpha, topics, day from :",tickers,alpha,topics,day_from)
+    url = f'https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={tickers}&topics={topics}&time_from={day_from}T0000&apikey={alpha}'
     r = requests.get(url)
     data = r.json()
-
+    time.sleep(10)
     print(json.dumps(data, indent=2))
 
 
@@ -15,8 +16,8 @@ def news_sentiment(tickers="BTC"):
 
 
 
-def currency_exchange_rates(from_currency, to_currency):
-    url = f'https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency={from_currency}&to_currency={to_currency}&apikey=QBTFDLTF1YAH05GW'
+def currency_exchange_rates(from_currency="USD", to_currency="INR",alpha="QBTFDLTF1YAH05GW"):
+    url = f'https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency={from_currency}&to_currency={to_currency}&apikey={alpha}'
     r = requests.get(url)
     data = r.json()
 
@@ -29,8 +30,8 @@ def currency_exchange_rates(from_currency, to_currency):
 
 
 
-def historical_time_series(symbol):
-    url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey=QBTFDLTF1YAH05GW'
+def historical_time_series(symbol="BTC",alpha="QBTFDLTF1YAH05GW"):
+    url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={alpha}'
     r = requests.get(url)
     data = r.json()
 
@@ -40,8 +41,8 @@ def historical_time_series(symbol):
 
 
 
-def intraday_time_series(symbol,interval_mins):
-    url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval={interval_mins}min&apikey=QBTFDLTF1YAH05GW'
+def intraday_time_series(symbol="BTC",interval_mins="10",alpha="QBTFDLTF1YAH05GW"):
+    url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval={interval_mins}min&apikey={alpha}'
     #Query the most recent full 30 days of intraday data by setting outputsize=full
     r = requests.get(url)
     data = r.json()
@@ -54,8 +55,8 @@ def intraday_time_series(symbol,interval_mins):
 
 
 
-def insider_transactions(symbol):
-    url = f'https://www.alphavantage.co/query?function=INSIDER_TRANSACTIONS&symbol={symbol}&apikey=QBTFDLTF1YAH05GW'
+def insider_transactions(symbol="BTC",alpha="QBTFDLTF1YAH05GW"):
+    url = f'https://www.alphavantage.co/query?function=INSIDER_TRANSACTIONS&symbol={symbol}&apikey={alpha}'
     r = requests.get(url)
     data = r.json()
 

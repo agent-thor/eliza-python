@@ -8,10 +8,13 @@ from bs4 import BeautifulSoup
 
 
 def get_news():
-    response = requests.get("https://techpoint.africa/crypto/")
+    headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+}   
+    response = requests.get("https://techpoint.africa/crypto/",headers=headers)
 
         # Check if the request was successful
-        
+    print(response.status_code)
             
     if response.status_code == 200:
 
@@ -38,8 +41,8 @@ def get_news():
 
 
 
-def real_time_price(symbol):
-    url = f"https://api.twelvedata.com/price?symbol={symbol}&apikey=9973cacdafa04ea48dcd1208626138e9"
+def real_time_price(symbol,twelve):
+    url = f"https://api.twelvedata.com/price?symbol={symbol}&apikey={twelve}"
     r = requests.get(url)
     data = r.json()
     return data
@@ -49,3 +52,4 @@ def real_time_price(symbol):
 "https://api.twelvedata.com/price?symbol=TRP&country=Canada&apikey=9973cacdafa04ea48dcd1208626138e9"
 
 
+get_news()
